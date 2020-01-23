@@ -46,7 +46,7 @@ module.exports = {
             const passCompare = user ? await bcrypt.compare(password, user.password) : false
             
             return passCompare ? 
-                res.status(200).json({token: generateToken(user.id, user.name, user.email)}) 
+                res.status(200).json({token: generateToken(user.id, user.name, user.email, user.access_level)}) 
             : 
                 res.status(400).json({ error: ['invalid email or password'] })
             

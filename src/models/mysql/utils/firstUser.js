@@ -19,7 +19,7 @@ async function createFirstUser(){
         }
     
     } catch (error) {
-        return console.error(`impossible to create or find a root user \n ${error}`)
+        return console.error(`impossible to create or find a root user \n${error}`)
     }
 }
 
