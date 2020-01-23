@@ -30,6 +30,15 @@ const User = seq.define('user', {
                 msg: 'password is required'
             }
         }
+    },
+    access_level:{
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        validate:{
+            notNull:{
+                msg: 'access level is required'
+            }
+        }
     }
 })
 
