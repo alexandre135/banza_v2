@@ -2,9 +2,8 @@ const jwt = require('jsonwebtoken')
 
 function validateToken(token){
     const splitedToken = token.split(' ')
-    const sanitized = splitedToken[0].trim()
 
-    if(sanitized !== 'Bearer') return false
+    if(splitedToken[0] !== 'Bearer') return false
 
     try {
 
