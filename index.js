@@ -1,10 +1,12 @@
 const express = require('express')
 const routes = require('./src/routes')
+const firstUser = require('./src/models/mysql/utils/firstUser')
 
 const connect = require('./src/services/mongodb')
 
 require('dotenv').config()
 
+firstUser()
 
 const app = express()
 
