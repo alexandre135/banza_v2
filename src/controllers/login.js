@@ -1,27 +1,30 @@
 const { User } = require('../models/mysql/users')
 const bcrypt = require('bcrypt')
+
 const sanitizeValidation = require('../models/mysql/utils/sanitizeValidationErros')
+const generateToken = require('../jwt/generateToken')
 
 
 module.exports = {
     addNewUser: async (req, res) => {
-        const { name, email, password } = req.body
+        const { name, email, password, accessLevel } = req.body
         let passwordHash
         password ? passwordHash = await bcrypt.hash(password, 10) : passwordHash = null
 
         try { 
-            const [response, created] = await User.findOrCreate({
+            const [result, created] = await User.findOrCreate({
                 where: { email },
                 defaults: {
                   name,
                   email,
-                  password: passwordHash
+                  password: passwordHash,
+                  access_level: accessLevel
                 }
             })
             if(!created){
                 return res.status(400).json({ error: ['this email is already in use'] })
             }
-            return res.status(200).json({ id: response.id, name: response.name, email: response.email })
+            return res.status(200).json({ created: true })
 
         } catch (error) {
             
@@ -39,11 +42,11 @@ module.exports = {
         } 
 
         try {
-            const passHash = await User.findOne({ where: { email }})
-            const passCompare = passHash ? await bcrypt.compare(password, passHash.password) : false
+            const user = await User.findOne({ where: { email }})
+            const passCompare = user ? await bcrypt.compare(password, user.password) : false
             
             return passCompare ? 
-                res.status(200).json({msg:'logado'}) 
+                res.status(200).json({token: generateToken(user.id, user.name, user.email)}) 
             : 
                 res.status(400).json({ error: ['invalid email or password'] })
             
