@@ -1,5 +1,5 @@
 const arr = [
-    '/signin'
+    '/authenticate'
 ]
 
 module.exports = arr
