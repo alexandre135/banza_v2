@@ -5,7 +5,10 @@ const sanitizeValidation = require('../models/mysql/utils/sanitizeValidationErro
 
 module.exports = {
     addNewUser: async (req, res) => {
-        const { name, email, password, accessLevel } = req.body
+        const { name, email, password, confirmPassword, accessLevel } = req.body
+        if(password !== confirmPassword){ 
+            return res.status(400).json({ error:['password and confirmation must be equal']})
+        }
         let passwordHash
         password ? passwordHash = await bcrypt.hash(password, 10) : passwordHash = null
 
