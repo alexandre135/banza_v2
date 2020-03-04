@@ -1,6 +1,4 @@
 const sequelize = require('sequelize')
-
-    const connection = new sequelize(`mysql://root:krdt@135db@localhost:3306/banza_v2`)
-
+    const connection = new sequelize(process.env.DBMYSQL_STRING_CONNECTION)
 
 module.exports = connection

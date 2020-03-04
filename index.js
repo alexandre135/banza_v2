@@ -1,12 +1,11 @@
+require('dotenv').config()
 const express = require('express')
 const routes = require('./src/routes')
 const firstUser = require('./src/models/mysql/utils/firstUser')
 const validateToken = require('./src/jwt/validateToken')
 const noJwtRequired = require('./src/jwt/routeExclusions')
 const checkLevelPermission = require('./src/levelAccess/function')
-
-
-require('dotenv').config()
+const needLevel = require('./src/levelAccess/config').accessLevel
 
 firstUser()
 
@@ -29,11 +28,12 @@ app.use((req, res, next) => {
 })
 app.use((req, res, next) =>{
     const exclusionRoutes = req.originalUrl.includes(noJwtRequired)
-    if(!exclusionRoutes){
+    const levelNeededRoutes = needLevel.some( item => { return item[0] === req.originalUrl && item[1] === req.method }) 
+    if(!exclusionRoutes && levelNeededRoutes){
         const {authorization} = req.headers
         const {url, method} = req
         const levelAuthorized = checkLevelPermission(url, method, authorization)
-        
+
         if(!levelAuthorized) return res.status(403).json({error:['access level is less than required for this route']})
     }
     next()

@@ -1,6 +1,9 @@
 const { User } = require('../models/mysql/users')
+const { Op } = require('sequelize')
 const bcrypt = require('bcrypt')
 const sanitizeValidation = require('../models/mysql/utils/sanitizeValidationErros')
+const jwt = require('jsonwebtoken')
+const decodeToken = require('../jwt/decodeToken')
 
 
 module.exports = {
@@ -35,5 +38,58 @@ module.exports = {
         }
         
         
+    },
+    getUsers: async (req, res) =>{
+        const token = decodeToken(req.headers.authorization)
+
+        try {
+            const result = await User.findAll({ 
+                where:{
+                    access_level:{
+                        [Op.gte]: token.accessLevel
+                    }
+                },
+                attributes: { exclude: ['password', 'access_level'] } 
+            })
+
+            return res.status(200).json({ result })
+
+        } catch (error) {
+            console.error(error)
+            return res.status(500).json({ error: ['an error occurred. please try again in a few moments'] })
+        }
+    },
+    getUserById: async (req, res) =>{
+        const userId = req.params
+        try {
+            const result = await User.findOne({
+                where:{ id: parseInt(userId.id) },
+                attributes: { exclude: ['password', 'access_level'] }
+            })
+
+            return res.status(200).json({ result })
+
+        } catch (error) {
+            console.error(error)
+            return res.status(400).json({ error: ['an error occurred. check if you passed "id" parameter in request'] })
+        }
+    },
+    modifyUser: async (req, res) =>{
+        const {id, name, email, accessLevel} = req.body
+        
+        if(!id) return res.status(400).json({ error: ['"id" is required'] })
+       
+        try {
+            const result = await User.update({ name, email, access_level: accessLevel }, {
+                where:{ id }
+            })
+            return res.status(200).json({
+                msg: 'User updated', 
+                updated: result 
+            })
+        } catch (error) {
+            console.error(error)
+            return res.status(500).json({ error: ['an error occurred. please try again in a few moments'] })
+        }
     }
 }
